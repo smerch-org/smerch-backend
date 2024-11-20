@@ -15,9 +15,9 @@ jobs:
 
       - name: Install Dependencies
         run: |
-          sudo apt update
-          wget https://downloads.mongodb.com/compass/mongodb-mongosh_2.0.0_amd64.deb -O mongodb-mongosh.deb
-          sudo dpkg -i mongodb-mongosh.deb || sudo apt install -f -y openssl
+          sudo apt update         
+          wget https://fastdl.mongodb.org/tools/db/mongodb-database-tools-ubuntu2404-x86_64-100.10.0.deb -O mongodb-mongotools.deb
+          sudo dpkg -i mongodb-mongotools.deb || sudo apt install -f -y openssl
 
       - name: Create MongoDB Dump
         env:
