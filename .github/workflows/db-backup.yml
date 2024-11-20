@@ -49,7 +49,7 @@ jobs:
         run: |
           today=$(date +"%Y-%m-%d")
           az storage blob upload \
-            --container-name backup-container \
+            --container-name db-backups \
             --file backup-db-production-$today.tar.gz.enc \
             --name backup-db-production-$today.tar.gz.enc \
             --connection-string "$AZURE_STORAGE_CONNECTION_STRING"
