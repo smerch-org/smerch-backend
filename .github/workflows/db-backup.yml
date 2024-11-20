@@ -52,4 +52,5 @@ jobs:
             --container-name db-backups \
             --file backup-db-production-$today.tar.gz.enc \
             --name backup-db-production-$today.tar.gz.enc \
+            --overwrite \
             --connection-string "$AZURE_STORAGE_CONNECTION_STRING"
