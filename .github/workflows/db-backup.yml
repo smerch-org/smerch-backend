@@ -24,7 +24,6 @@ jobs:
           MONGODB_URL: ${{ secrets.MONGODB_URL }}
         run: |
           today=$(date +"%Y-%m-%d")
-          echo "------------LOG------------ TODAY IS $today ------------LOG------------"
           mongodump --uri="$MONGODB_URL" -d db-production --out=backup-db-production-$today
 
       - name: Restore Dump to MongoDB Atlas Test Cluster
@@ -32,5 +31,4 @@ jobs:
           TEST_MONGODB_URL: ${{ secrets.TEST_MONGODB_URL }}
         run: |
           today=$(date +"%Y-%m-%d")
-          echo "------------LOG------------ TODAY IS $today ------------LOG------------"
-          mongorestore --uri="$TEST_MONGODB_URL" backup-db-production-$today --nsFrom="db-production.*" --nsTo="db-test.*" --drop 
+          mongorestore --uri="$TEST_MONGODB_URL" backup-db-production-$today --nsFrom="db-production.*" --nsTo="db-test.*" --drop
