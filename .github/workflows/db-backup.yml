@@ -15,10 +15,14 @@ jobs:
 
       - name: Install Dependencies
         run: |
-          sudo apt update         
+          # Update & install encryption tool
+          sudo apt update
+          sudo apt install -y openssl
+          # MongoDB tools
           wget https://fastdl.mongodb.org/tools/db/mongodb-database-tools-ubuntu2404-x86_64-100.10.0.deb -O mongodb-mongotools.deb
-          sudo dpkg -i mongodb-mongotools.deb || sudo apt install -f -y openssl
-          curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
+          sudo dpkg -i mongodb-mongotools.deb || sudo apt install -f -y
+          # Azure cli
+          curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash   
 
       - name: Create MongoDB Dump
         env:
@@ -34,6 +38,49 @@ jobs:
           today=$(date +"%Y-%m-%d")
           mongorestore --uri="$TEST_MONGODB_URL" backup-db-production-$today --nsFrom="db-production.*" --nsTo="db-test.*" --drop
 
+      - name: Clone Backend Repository
+        run: |
+          git clone https://github.com/ita-social-projects/SpaceToStudy-BackEnd.git
+          cd SpaceToStudy-BackEnd
+
+      - name: Install Node.js v.20.15.1
+        uses: actions/setup-node@v3
+        with:
+          node-version: 20.15.1
+      
+      - name: Install dependencies
+        working-directory: SpaceToStudy-BackEnd
+        run: |
+          npm install
+
+      - name: Run Backend Tests with Test DB
+        working-directory: SpaceToStudy-BackEnd
+        env:
+          MONGODB_URL: ${{ secrets.TEST_MONGODB_URL }}
+          JWT_ACCESS_SECRET: ${{secrets.JWT_ACCESS_SECRET}}
+          JWT_REFRESH_SECRET: ${{secrets.JWT_REFRESH_SECRET}}
+          JWT_RESET_SECRET: ${{secrets.JWT_RESET_SECRET}}
+          JWT_CONFIRM_SECRET: ${{secrets.JWT_CONFIRM_SECRET}}
+          JWT_ACCESS_EXPIRES_IN: ${{secrets.JWT_ACCESS_EXPIRES_IN}}
+          JWT_REFRESH_EXPIRES_IN: ${{secrets.JWT_REFRESH_EXPIRES_IN}}
+          JWT_REFRESH_LONG_TERM_EXPIRES_IN: ${{secrets.JWT_REFRESH_LONG_TERM_EXPIRES_IN}}
+          JWT_RESET_EXPIRES_IN: ${{secrets.JWT_RESET_EXPIRES_IN}}
+          JWT_CONFIRM_EXPIRES_IN: ${{secrets.JWT_CONFIRM_EXPIRES_IN}}
+          CLIENT_URL: ${{secrets.CLIENT_URL}}
+          SERVER_URL: ${{secrets.SERVER_URL}}
+          SERVER_PORT: ${{secrets.SERVER_PORT}}
+          MAIL_USER: ${{secrets.MAIL_USER}}
+          MAIL_PASS: ${{secrets.MAIL_PASS}}
+          MAIL_FIRSTNAME: ${{secrets.MAIL_FIRSTNAME}}
+          MAIL_LASTNAME: ${{secrets.MAIL_LASTNAME}}
+          GMAIL_CLIENT_ID: ${{secrets.GMAIL_CLIENT_ID}}
+          GMAIL_CLIENT_SECRET: ${{secrets.GMAIL_CLIENT_SECRET}}
+          GMAIL_REFRESH_TOKEN: ${{secrets.GMAIL_REFRESH_TOKEN}}
+          GMAIL_REDIRECT_URI: ${{secrets.GMAIL_REDIRECT_URI}}
+          COOKIE_DOMAIN: ${{secrets.COOKIE_DOMAIN}}
+        run: |
+          npm run test
+          
       - name: Encrypt Dump
         env:
           ENCRYPTION_KEY: ${{ secrets.ENCRYPTION_KEY }}
